@@ -58,7 +58,7 @@ const ImprovedBillInfo = () => {
             </div>
             
             <a 
-              href="https://www.arkleg.state.ar.us/Bills/Detail" 
+              href="https://arkleg.state.ar.us/Home/FTPDocument?path=%2FBills%2F2025R%2FPublic%2FSB307.pdf" 
               target="_blank"
               rel="noopener noreferrer"
               className="mt-8 inline-flex items-center text-red-600 hover:text-red-800"

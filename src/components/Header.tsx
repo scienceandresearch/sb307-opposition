@@ -1,3 +1,4 @@
+'use client'
 // File: src/components/Header.tsx
 
 import React, { useState } from 'react';

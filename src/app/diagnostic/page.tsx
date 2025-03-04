@@ -71,7 +71,8 @@ export default function DiagnosticPage() {
     try {
       results.userAgent = navigator.userAgent;
       results.viewport = `${window.innerWidth}x${window.innerHeight}`;
-      results.devicePixelRatio = window.devicePixelRatio;
+      // Convert devicePixelRatio to string to match Record<string, boolean | string> type
+      results.devicePixelRatio = window.devicePixelRatio.toString();
     } catch (e) {
       results.browserInfo = `Error: ${e instanceof Error ? e.message : 'Unknown error'}`;
     }
