@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         representatives: [],
         normalizedAddress: '',
         success: false,
-        error: 'API configuration error. Please contact the administrator.',
+        error: 'API configuration error. The API key is missing.',
       }, { status: 500 });
     }
     
@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
     
     try {
       // Call Google Civic Information API
-      // Remove the invalid parameter format for roles
       const response = await axios.get(
         `https://civicinfo.googleapis.com/civicinfo/v2/representatives`,
         {
@@ -46,7 +45,6 @@ export async function POST(request: NextRequest) {
             address: formattedAddress,
             key: apiKey,
             levels: "administrativeArea1" // State level only
-            // Remove the roles parameter that was causing the error
           },
         }
       );
@@ -88,6 +86,18 @@ export async function POST(request: NextRequest) {
 
       console.log(`Found ${representatives.length} representatives`);
 
+      // If no representatives were found, provide a helpful message
+      if (representatives.length === 0) {
+        return NextResponse.json({
+          representatives: [],
+          normalizedAddress: data.normalizedInput 
+            ? `${data.normalizedInput.line1}, ${data.normalizedInput.city}, ${data.normalizedInput.state} ${data.normalizedInput.zip}`
+            : formattedAddress,
+          success: false,
+          error: 'No state legislators were found for your address. Please verify your address is correct and in Arkansas.'
+        }, { status: 200 });
+      }
+
       return NextResponse.json({
         representatives,
         normalizedAddress: data.normalizedInput 
@@ -118,7 +128,7 @@ export async function POST(request: NextRequest) {
           representatives: [],
           normalizedAddress: '',
           success: false,
-          error: 'API access denied. The service may be experiencing issues.',
+          error: 'API access denied. The service may be experiencing issues or the API key may be invalid.',
         }, { status: 500 });
       }
       

@@ -1,6 +1,6 @@
 // File: src/utils/emailFormatter.ts
 
-import { Representative } from '../types';
+import { Representative, AddressFormData } from '../types';
 
 // Format a list of representatives for display
 export const formatRepresentativesList = (representatives: Representative[]): string => {
@@ -35,10 +35,13 @@ export const formatSalutation = (representatives: Representative[]): string => {
 };
 
 // Create an email signature with the user's information
-export const createEmailSignature = (name: string, address: string): string => {
+export const createEmailSignature = (userAddress: AddressFormData): string => {
+  const { name, street, city, state, zip } = userAddress;
+  
   return `
 Sincerely,
 ${name}
-${address}
+${street}
+${city}, ${state} ${zip}
 `;
 };

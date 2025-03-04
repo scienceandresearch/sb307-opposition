@@ -20,8 +20,9 @@ export async function POST(request: NextRequest) {
 
     const formattedAddress = `${userAddress.street}, ${userAddress.city}, ${userAddress.state} ${userAddress.zip}`;
     const repsList = formatRepresentativesList(representatives);
+    const userName = userAddress.name || 'Concerned Constituent';
     
-    console.log(`Generating email for address: ${formattedAddress}`);
+    console.log(`Generating email for ${userName} at address: ${formattedAddress}`);
     console.log(`Representatives: ${repsList}`);
     
     // Check if API key exists
@@ -40,7 +41,7 @@ export async function POST(request: NextRequest) {
     const prompt = `
 Write a professional, compelling email opposing Arkansas Senate Bill 307. 
 The email should be addressed to the following legislators: ${repsList}.
-The email should be from a constituent living at: ${formattedAddress}.
+The email should be from a constituent named ${userName} living at: ${formattedAddress}.
 
 Include these key points about SB307:
 1. Express strong opposition to Senate Bill 307
@@ -53,6 +54,7 @@ ${personalStory ? `Include this personal perspective from the constituent: ${per
 Format the response as a JSON object with 'subject' and 'body' fields.
 The subject should be concise and direct.
 The body should be 3-4 paragraphs, professionally written, and persuasive.
+The email should be signed with the constituent's name (${userName}).
 Do not include any JSON comments, only return the valid JSON object.
 `;
 

@@ -1,6 +1,7 @@
 // File: src/types/index.ts
 
 export interface AddressFormData {
+    name: string;
     street: string;
     city: string;
     state: string;

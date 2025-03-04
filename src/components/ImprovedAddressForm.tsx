@@ -46,12 +46,35 @@ const ImprovedAddressForm: React.FC<AddressFormProps> = ({ onSubmit, isLoading }
             Find Your Arkansas Representatives
           </h3>
           <p className="text-blue-100 text-center mt-2">
-            Enter your address to locate your state legislators
+            Enter your information to locate your state legislators
           </p>
         </div>
         
         <div className="px-6 py-8">
           <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                Your Full Name *
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <input
+                  id="name"
+                  type="text"
+                  {...register('name', { required: 'Your name is required' })}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+                  placeholder="John Doe"
+                />
+              </div>
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              )}
+            </div>
+            
             <div>
               <label htmlFor="street" className="block text-sm font-medium text-gray-700 mb-1">
                 Street Address *
@@ -201,7 +224,7 @@ const ImprovedAddressForm: React.FC<AddressFormProps> = ({ onSubmit, isLoading }
                 </svg>
               </div>
               <p className="ml-2 text-sm text-gray-500">
-                We only use your address to find your state representatives. Your information is never stored.
+                We only use your information to find your state representatives and personalize your message. Your information is never stored.
               </p>
             </div>
           </div>
