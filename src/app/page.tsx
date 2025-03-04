@@ -1,101 +1,163 @@
-import Image from "next/image";
+'use client'
+// File: src/app/page.tsx
+
+import React, { useState } from 'react';
+import BillInfo from '../components/BillInfo';
+import AddressForm from '../components/AddressForm';
+import RepresentativeCard from '../components/RepresentativeCard';
+import EmailGenerator from '../components/EmailGenerator';
+import LoadingState from '../components/LoadingState';
+import { AddressFormData, Representative } from '../types';
+import { fetchRepresentatives } from '../utils/apiHelpers';
 
 export default function Home() {
+  const [address, setAddress] = useState<AddressFormData | null>(null);
+  const [representatives, setRepresentatives] = useState<Representative[]>([]);
+  const [selectedReps, setSelectedReps] = useState<Representative[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [normalizedAddress, setNormalizedAddress] = useState<string>('');
+  
+  const handleAddressSubmit = async (formData: AddressFormData) => {
+    setIsLoading(true);
+    setError(null);
+    setAddress(formData);
+    
+    try {
+      console.log('Submitting address:', formData);
+      const response = await fetchRepresentatives(formData);
+      console.log('Response:', response);
+      
+      if (response.success) {
+        setRepresentatives(response.representatives);
+        setNormalizedAddress(response.normalizedAddress);
+        
+        // Auto-select all representatives by default
+        setSelectedReps(response.representatives);
+        
+        if (response.representatives.length === 0) {
+          setError('No state legislators were found for your address. Please verify your address is in Arkansas and try again.');
+        }
+      } else {
+        setError(response.error || 'Failed to find representatives. Please try again.');
+        setRepresentatives([]);
+      }
+    } catch (err: any) {
+      console.error('Error fetching representatives:', err);
+      setError('An unexpected error occurred. Please try again.');
+      setRepresentatives([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const toggleRepresentative = (rep: Representative) => {
+    if (selectedReps.some(r => r.name === rep.name && r.office === rep.office)) {
+      setSelectedReps(selectedReps.filter(r => r.name !== rep.name || r.office !== rep.office));
+    } else {
+      setSelectedReps([...selectedReps, rep]);
+    }
+  };
+  
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="flex flex-col min-h-screen">
+      <section className="bg-gradient-to-r from-blue-700 to-blue-500 text-white py-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-4xl font-extrabold sm:text-5xl md:text-6xl">
+              Stop SB307 Now
+            </h1>
+            <p className="mt-6 text-xl sm:text-2xl">
+              Protect your utility bills from unnecessary increases.
+              Make your voice heard in minutes.
+            </p>
+            <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+              <a
+                href="#about"
+                className="w-full sm:w-auto inline-flex justify-center items-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-blue-700 bg-white hover:bg-gray-50 shadow-md transition-colors"
+              >
+                Learn More
+              </a>
+              <a
+                href="#find-reps"
+                className="w-full sm:w-auto inline-flex justify-center items-center px-8 py-4 border border-white text-base font-medium rounded-md text-white hover:bg-blue-600 shadow-md transition-colors"
+              >
+                Take Action Now
+              </a>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </section>
+      
+      <BillInfo />
+      
+      <section id="find-reps" className="py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 sm:text-4xl">
+            Contact Your Representatives
+          </h2>
+          <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+            Use this free tool to find your Arkansas state legislators and send them 
+            a personalized message opposing SB307.
+          </p>
+        </div>
+
+        <AddressForm
+          onSubmit={handleAddressSubmit}
+          isLoading={isLoading}
+        />
+        
+        {isLoading && (
+          <div className="mt-12 flex justify-center">
+            <LoadingState message="Finding your representatives..." />
+          </div>
+        )}
+        
+        {error && (
+          <div className="mt-12 bg-red-50 p-6 rounded-lg border border-red-200 max-w-3xl mx-auto">
+            <p className="text-red-700 text-center">{error}</p>
+          </div>
+        )}
+        
+        {representatives.length > 0 && (
+          <div className="mt-16">
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+              <div className="px-6 py-8 md:p-10">
+                <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">
+                  Your Representatives
+                </h2>
+                
+                {normalizedAddress && (
+                  <p className="text-sm text-gray-600 mb-8 text-center">
+                    Based on your address: {normalizedAddress}
+                  </p>
+                )}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                  {representatives.map((rep) => (
+                    <RepresentativeCard
+                      key={`${rep.name}-${rep.office}`}
+                      representative={rep}
+                      isSelected={selectedReps.some(
+                        (r) => r.name === rep.name && r.office === rep.office
+                      )}
+                      onToggleSelect={toggleRepresentative}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {address && representatives.length > 0 && (
+          <EmailGenerator
+            representatives={representatives}
+            selectedReps={selectedReps}
+            userAddress={address}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        )}
+      </section>
     </div>
   );
 }
